@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>10-Day Northern Thailand Solo Loop</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<style>
+  :root {
+    --ink: #1a1a1a;
+    --paper: #faf8f4;
+    --accent: #c4813d;
+    --muted: #8a8577;
+    --border: #e0dbd2;
+    --tag-nature: #4a7c59;
+    --tag-food: #c4573d;
+    --tag-art: #6b5b8a;
+    --tag-temple: #b08d3e;
+    --tag-transport: #5a7a8a;
+    --city-cm: #c4813d;
+    --city-lp: #6b8a5a;
+    --city-lg: #8a6b5a;
+    --city-pai: #5a7a8a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Source Sans 3', sans-serif; background: var(--paper); color: var(--ink); line-height: 1.6; font-weight: 300; }
+  .hero { background: linear-gradient(135deg, #2c1810 0%, #4a2e1f 40%, #6b4226 100%); color: #faf8f4; padding: 64px 40px 48px; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E"); }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: 2.6rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 10px; position: relative; }
+  .hero .subtitle { font-size: 1.05rem; font-weight: 300; opacity: 0.8; position: relative; }
+  .hero .route-tags { margin-top: 20px; display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; position: relative; }
+  .hero .route-tag { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); padding: 5px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 400; }
+  .container { max-width: 1140px; margin: 0 auto; padding: 0 20px; }
+  .summary-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin: 32px 0 40px; }
+  .summary-item { background: white; padding: 18px 14px; text-align: center; }
+  .summary-item .num { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--accent); }
+  .summary-item .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-top: 2px; }
+  .section-head { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: inline-block; }
+  .city-block { margin-bottom: 40px; }
+  .city-header { display: flex; align-items: center; gap: 12px; margin-bottom: 2px; }
+  .city-dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .city-header h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; }
+  .city-sub { margin-left: 26px; font-size: 0.85rem; color: var(--muted); margin-bottom: 12px; }
+  .transport-connector { display: flex; align-items: center; gap: 10px; padding: 10px 20px; margin: 8px 0 32px 0; background: #f4f1ec; border-radius: 6px; border-left: 3px solid var(--tag-transport); font-size: 0.84rem; color: var(--muted); }
+  .transport-connector strong { color: var(--ink); font-weight: 600; }
+  .itin-table-wrap { background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .itin-table { width: 100%; border-collapse: collapse; }
+  .itin-table thead th { background: #f9f7f3; text-align: left; padding: 10px 16px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); border-bottom: 2px solid var(--border); }
+  .itin-table tbody tr { border-bottom: 1px solid #f0ede8; }
+  .itin-table tbody tr:last-child { border-bottom: none; }
+  .itin-table tbody tr:hover { background: #fdfcfa; }
+  .itin-table td { padding: 12px 16px; vertical-align: top; font-size: 0.9rem; }
+  .col-day { width: 60px; font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1rem; color: var(--accent); text-align: center; white-space: nowrap; }
+  .col-time { width: 70px; font-weight: 600; color: var(--muted); font-size: 0.8rem; white-space: nowrap; }
+  .place-name { font-weight: 600; font-size: 0.92rem; }
+  .place-name a { color: var(--ink); text-decoration: none; border-bottom: 1px dotted var(--border); transition: border-color 0.15s; }
+  .place-name a:hover { border-color: var(--accent); color: var(--accent); }
+  .place-desc { color: var(--muted); font-size: 0.83rem; line-height: 1.5; margin-top: 2px; }
+  .col-tag { width: 80px; text-align: right; }
+  .tag { display: inline-block; padding: 2px 9px; border-radius: 10px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .tag-nature { background: #e8f2eb; color: var(--tag-nature); }
+  .tag-food { background: #fce8e4; color: var(--tag-food); }
+  .tag-art { background: #ece8f2; color: var(--tag-art); }
+  .tag-temple { background: #f5efd8; color: var(--tag-temple); }
+  .tag-transport { background: #e4edf2; color: var(--tag-transport); }
+  .map-route { display: inline; padding: 2px 8px; background: #eaf2ea; border-radius: 4px; font-size: 0.72rem; color: var(--tag-nature); text-decoration: none; font-weight: 600; margin-left: 10px; transition: background 0.15s; white-space: nowrap; }
+  .map-route:hover { background: #d4e8d4; }
+  .day-sep td { padding: 4px 16px; background: #faf8f4; border-bottom: 1px solid var(--border) !important; }
+  .day-sep .day-label { font-family: 'Playfair Display', serif; font-size: 0.8rem; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.06em; }
+  .notes-section { padding: 40px 0 56px; }
+  .notes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+  .note-card { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 18px 20px; }
+  .note-card h4 { font-family: 'Playfair Display', serif; font-size: 0.95rem; margin-bottom: 6px; color: var(--accent); }
+  .note-card p { font-size: 0.84rem; color: var(--muted); line-height: 1.6; }
+  .footer { text-align: center; padding: 28px; color: var(--muted); font-size: 0.78rem; border-top: 1px solid var(--border); }
+  .day-map { height: 280px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); z-index: 1; }
+  .day-map .leaflet-control-attribution { font-size: 9px; }
+  .map-marker { width: 28px; height: 28px; border-radius: 50%; color: white; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3); border: 2px solid white; font-family: 'Source Sans 3', sans-serif; }
+  @media (max-width: 700px) {
+    .hero h1 { font-size: 1.8rem; }
+    .hero { padding: 40px 16px 32px; }
+    .summary-strip { grid-template-columns: repeat(2, 1fr); }
+    .col-tag { display: none; }
+    .col-time { width: 55px; font-size: 0.75rem; }
+    .col-day { width: 40px; }
+    .itin-table td { padding: 10px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>Northern Thailand Solo Loop</h1>
+  <div class="subtitle">10 days · Bus between cities, scooter locally · Quiet temples, nature, food & art</div>
+  <div class="route-tags">
+    <span class="route-tag">Chiang Mai 3N</span>
+    <span class="route-tag">Lamphun day trip</span>
+    <span class="route-tag">Lampang 2N</span>
+    <span class="route-tag">Pai 3N</span>
+  </div>
+</div>
+
+<div class="container">
+
+<div class="summary-strip">
+  <div class="summary-item"><div class="num">10</div><div class="label">Days</div></div>
+  <div class="summary-item"><div class="num">4</div><div class="label">Cities</div></div>
+  <div class="summary-item"><div class="num">~$700</div><div class="label">SGD Budget</div></div>
+  <div class="summary-item"><div class="num">May</div><div class="label">Best Window</div></div>
+</div>
+
+<!-- CHIANG MAI -->
+<div class="city-block">
+  <div class="city-header"><div class="city-dot" style="background:var(--city-cm)"></div><h3>Chiang Mai</h3></div>
+  <div class="city-sub">Days 1–3 · 3 nights · Scooter around Old City & east to San Kamphaeng (flat roads)</div>
+  <div class="itin-table-wrap">
+    <table class="itin-table">
+      <thead><tr><th>Day</th><th>Time</th><th>What to Do</th><th></th></tr></thead>
+      <tbody>
+        <tr class="day-sep"><td colspan="4"><span class="day-label">Day 1 — Arrival & Wat Umong</span> <a class="map-route" href="https://www.google.com/maps/dir/Chiang+Mai+Old+City/Wat+Umong+Suan+Putthatham,+Chiang+Mai/Waroros+Market,+Chiang+Mai/@18.786,98.98,14z" target="_blank">🗺️ Day 1 route</a></td></tr>
+        <tr><td class="col-day">1</td><td class="col-time">AM</td><td class="col-activity"><div class="place-name">Arrive → Rent scooter</div><div class="place-desc">Settle in Old City. Scooter from Bikago or Mango Bikes, 150–300 THB/day.</div></td><td class="col-tag"><span class="tag tag-transport">Transport</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">3 PM</td><td class="col-activity"><div class="place-name">① <a href="https://www.google.com/maps/place/Wat+Umong+Suan+Putthatham/@18.7827263,98.9521099,17z/" target="_blank">Wat Umong (Tunnel Temple) ↗</a></div><div class="place-desc">Forest temple with ancient meditation tunnels, deer, turtles. Find a quiet spot and sit.</div></td><td class="col-tag"><span class="tag tag-temple">Temple</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">6 PM</td><td class="col-activity"><div class="place-name">② <a href="https://www.google.com/maps/place/Waroros+Market/@18.789849,99.000996,17z/" target="_blank">Warorot Market ↗</a></div><div class="place-desc">Authentic local market. Northern Thai specialties, dried fruits. Not tourist-priced.</div></td><td class="col-tag"><span class="tag tag-food">Food</span></td></tr>
+
+        <tr class="day-sep"><td colspan="4"><span class="day-label">Day 2 — East Day Trip: Art, Crafts & Hot Springs</span> <a class="map-route" href="https://www.google.com/maps/dir/Chiang+Mai+Old+City/Borsang+Umbrella+Village,+Chiang+Mai/MAIIAM+Contemporary+Art+Museum,+Chiang+Mai/San+Kamphaeng+Hot+Springs/@18.79,99.1,12z" target="_blank">🗺️ Day 2 route</a></td></tr>
+        <tr><td class="col-day">2</td><td class="col-time">9:30 AM</td><td class="col-activity"><div class="place-name">③ <a href="https://www.google.com/maps/place/Borsang+Umbrella+Community+Enterprise/@18.764459,99.0820997,17z/" target="_blank">Bor Sang Umbrella Village ↗</a></div><div class="place-desc">Artisans hand-paint paper umbrellas. Closed Tuesdays. ~30 min flat ride east.</div></td><td class="col-tag"><span class="tag tag-art">Art</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">11 AM</td><td class="col-activity"><div class="place-name">④ <a href="https://www.google.com/maps/place/MAIIAM+Contemporary+Art+Museum/@18.7572293,99.0936812,17z/" target="_blank">MAIIAM Contemporary Art Museum ↗</a></div><div class="place-desc">Converted warehouse, rotating exhibitions. 200 THB. Closed Tues. Good café.</div></td><td class="col-tag"><span class="tag tag-art">Art</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">1:30 PM</td><td class="col-activity"><div class="place-name">⑤ <a href="https://www.google.com/maps/place/San+Kamphaeng+Hot+Springs/@18.8145004,99.2294265,17z/" target="_blank">San Kamphaeng Hot Springs ↗</a></div><div class="place-desc">Thermal baths in gardens. Boil eggs in geyser pools. 40 THB. Bring towel.</div></td><td class="col-tag"><span class="tag tag-nature">Nature</span></td></tr>
+
+        <tr class="day-sep"><td colspan="4"><span class="day-label">Day 3 — Cooking, Galleries & Quiet Sit</span> <a class="map-route" href="https://www.google.com/maps/dir/Nimmanhaemin+Road,+Chiang+Mai/Wat+Ram+Poeng,+Chiang+Mai/Chang+Phuak+Market,+Chiang+Mai/@18.79,98.97,14z" target="_blank">🗺️ Day 3 route</a></td></tr>
+        <tr><td class="col-day">3</td><td class="col-time">AM</td><td class="col-activity"><div class="place-name">Thai Cooking Class</div><div class="place-desc">Half-day with market visit. Khao soi, pad thai, green curry. ~1,000–1,500 THB.</div></td><td class="col-tag"><span class="tag tag-food">Food</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">2 PM</td><td class="col-activity"><div class="place-name">Nimman Art Galleries & Cafés</div><div class="place-desc">Indie galleries in the soi streets. Ristr8to for world-class coffee.</div></td><td class="col-tag"><span class="tag tag-art">Art</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">4 PM</td><td class="col-activity"><div class="place-name">⑥ <a href="https://www.google.com/maps/place/Wat+Ram+Poeng+(Tapotaram)/@18.774625,98.9488088,17z/" target="_blank">Wat Ram Poeng (Tapotaram) ↗</a></div><div class="place-desc">14th-century meditation monastery. Grounds open and silent — walk in and sit.</div></td><td class="col-tag"><span class="tag tag-temple">Temple</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">6 PM</td><td class="col-activity"><div class="place-name">⑦ <a href="https://www.google.com/maps/place/Chang+Phuak+Market/@18.7958715,98.9857544,17z/" target="_blank">Chang Phuak Gate Market ↗</a></div><div class="place-desc">Night food market. Sai ua (northern sausage), khao soi. Opens 5 PM.</div></td><td class="col-tag"><span class="tag tag-food">Food</span></td></tr>
+      </tbody>
+    </table>
+    <div id="map-chiangmai" class="day-map"></div>
+  </div>
+</div>
+
+<!-- LAMPHUN -->
+<div class="transport-connector"><strong>🛵 Scooter or 🚂 Train</strong>&nbsp;— Chiang Mai → Lamphun (26 km, 30 min). Tree-lined Highway 106 or old train ~20 THB.</div>
+<div class="city-block">
+  <div class="city-header"><div class="city-dot" style="background:var(--city-lp)"></div><h3>Lamphun</h3></div>
+  <div class="city-sub">Day 4 · Day trip or overnight · Oldest city in the North, zero tourist crowds</div>
+  <div class="itin-table-wrap">
+    <table class="itin-table">
+      <thead><tr><th>Day</th><th>Time</th><th>What to Do</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="col-day">4</td><td class="col-time">8:30 AM</td><td class="col-activity"><div class="place-name">① <a href="https://www.google.com/maps/place/Wat+Phra+That+Haripunchai+Woramahawihan/@18.5771055,99.008501,17z/" target="_blank">Wat Phra That Hariphunchai ↗</a></div><div class="place-desc">1,000-year-old monastery, 46m golden chedi. Arrive early — just monks and locals.</div></td><td class="col-tag"><span class="tag tag-temple">Temple</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">11 AM</td><td class="col-activity"><div class="place-name">② Lamphun Old Town</div><div class="place-desc">Walk moat-lined streets. Longan noodles. Friday walking street if timing works.</div></td><td class="col-tag"><span class="tag tag-food">Food</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">12 PM</td><td class="col-activity"><div class="place-name">③ <a href="https://www.google.com/maps/place/The+Terracotta+Garden+at+Lamphun/@18.6038234,98.9720556,17z/" target="_blank">The Terracotta Garden ↗</a></div><div class="place-desc">Hundreds of terracotta sculptures around a lake. Buddhist statues, Naga figures. Great café with khao soi.</div></td><td class="col-tag"><span class="tag tag-art">Art</span></td></tr>
+      </tbody>
+    </table>
+    <div id="map-lamphun" class="day-map"></div>
+  </div>
+</div>
+
+<!-- LAMPANG -->
+<div class="transport-connector"><strong>🚌 Bus</strong>&nbsp;— Chiang Mai Arcade Station → Lampang (~1.5 hrs, many daily departures)</div>
+<div class="city-block">
+  <div class="city-header"><div class="city-dot" style="background:var(--city-lg)"></div><h3>Lampang</h3></div>
+  <div class="city-sub">Days 5–6 · 1–2 nights · Most authentic Lanna town, almost zero foreign tourists</div>
+  <div class="itin-table-wrap">
+    <table class="itin-table">
+      <thead><tr><th>Day</th><th>Time</th><th>What to Do</th><th></th></tr></thead>
+      <tbody>
+        <tr class="day-sep"><td colspan="4"><span class="day-label">Day 5 — Riverside, Ceramics & Old Town</span> <a class="map-route" href="https://www.google.com/maps/dir/Wang+River,+Lampang/Dhanabadee+Ceramic+Museum,+Lampang/Lampang+Cultural+Street+Market/@18.29,99.5,14z" target="_blank">🗺️ Day 5 route</a></td></tr>
+        <tr><td class="col-day">5</td><td class="col-time">Dawn</td><td class="col-activity"><div class="place-name">① Wang River Morning Walk</div><div class="place-desc">Riverbanks at dawn. Century-old shophouses, street art. Unhurried atmosphere.</div></td><td class="col-tag"><span class="tag tag-nature">Nature</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">11 AM</td><td class="col-activity"><div class="place-name">② Old Market District & Ceramics</div><div class="place-desc">Dhanabadee Ceramic Museum (chicken-bowl pottery). Aroy One Baht for legendary cheap food.</div></td><td class="col-tag"><span class="tag tag-food">Food</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">PM</td><td class="col-activity"><div class="place-name"><a href="https://www.google.com/maps/place/Lampang+Cultural+Street+Market/@18.296,99.5065886,17z/" target="_blank">Lampang Cultural Street (Fri only) ↗</a></div><div class="place-desc">Riverside night market 4:30–8:30 PM. Food, crafts, performances.</div></td><td class="col-tag"><span class="tag tag-art">Art</span></td></tr>
+
+        <tr class="day-sep"><td colspan="4"><span class="day-label">Day 6 — Sky Temple Pilgrimage → Return</span> <a class="map-route" href="https://www.google.com/maps/dir/Lampang/Wat+Chaloem+Phra+Kiat,+Lampang/Lampang+Bus+Station/@18.5,99.5,11z" target="_blank">🗺️ Day 6 route</a></td></tr>
+        <tr><td class="col-day">6</td><td class="col-time">7:30 AM</td><td class="col-activity"><div class="place-name">③ <a href="https://www.google.com/maps/place/Wat+Chaloem+Phra+Kiat/@18.7412822,99.5436065,17z/" target="_blank">Wat Chalermprakiat (Sky Temple) ↗</a></div><div class="place-desc">White pagodas on limestone peaks. Taxi ~1 hr each way (~2,000 THB RT). 30-min hike up steel stairs. <strong>Call ahead to confirm open.</strong></div></td><td class="col-tag"><span class="tag tag-temple">Temple</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">PM</td><td class="col-activity"><div class="place-name">Bus → Chiang Mai</div><div class="place-desc">Afternoon bus (~1.5 hrs). Rest evening — prep for Pai.</div></td><td class="col-tag"><span class="tag tag-transport">Transport</span></td></tr>
+      </tbody>
+    </table>
+    <div id="map-lampang" class="day-map"></div>
+  </div>
+</div>
+
+<!-- PAI -->
+<div class="transport-connector"><strong>🚐 Minivan</strong>&nbsp;— Chiang Mai Arcade 2 → Pai (3 hrs, 762 curves — you sit back). ~150–250 THB. Book 1–2 days ahead.</div>
+<div class="city-block">
+  <div class="city-header"><div class="city-dot" style="background:var(--city-pai)"></div><h3>Pai</h3></div>
+  <div class="city-sub">Days 7–9 · 3 nights · Valley floor flat & quiet. Scooter 150–200 THB/day. Stay in rice-paddy bungalow.</div>
+  <div class="itin-table-wrap">
+    <table class="itin-table">
+      <thead><tr><th>Day</th><th>Time</th><th>What to Do</th><th></th></tr></thead>
+      <tbody>
+        <tr class="day-sep"><td colspan="4"><span class="day-label">Day 7 — Arrival & Canyon Sunset</span> <a class="map-route" href="https://www.google.com/maps/dir/Pai+Bus+Station/Pai+Canyon/Pai+Walking+Street/@19.33,98.44,13z" target="_blank">🗺️ Day 7 route</a></td></tr>
+        <tr><td class="col-day">7</td><td class="col-time">PM</td><td class="col-activity"><div class="place-name">Arrive → Rent scooter</div><div class="place-desc">Settle into rice-paddy bungalow. Scooter ~150–200 THB/day.</div></td><td class="col-tag"><span class="tag tag-transport">Transport</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">4:30 PM</td><td class="col-activity"><div class="place-name">① <a href="https://www.google.com/maps/place/Pai+Canyon/@19.3061375,98.4525156,17z/" target="_blank">Pai Canyon ↗</a></div><div class="place-desc">Sandstone ridges above jungle. 15 min south. Proper shoes — sandy/slippery. Arrive by 4:30.</div></td><td class="col-tag"><span class="tag tag-nature">Nature</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">7 PM</td><td class="col-activity"><div class="place-name">② <a href="https://www.google.com/maps/place/Pai+Walking+Street/@19.3596294,98.4423653,17z/" target="_blank">Pai Walking Street ↗</a></div><div class="place-desc">Nightly street food — veg-friendly, diverse. Live music, crafts. 6–10 PM.</div></td><td class="col-tag"><span class="tag tag-food">Food</span></td></tr>
+
+        <tr class="day-sep"><td colspan="4"><span class="day-label">Day 8 — Nature & Soaking</span> <a class="map-route" href="https://www.google.com/maps/dir/Yun+Lai+Viewpoint,+Pai/Pam+Bok+Waterfall,+Pai/Tha+Pai+Hot+Spring/@19.33,98.43,13z" target="_blank">🗺️ Day 8 route</a></td></tr>
+        <tr><td class="col-day">8</td><td class="col-time">5:45 AM</td><td class="col-activity"><div class="place-name">③ <a href="https://www.google.com/maps/place/Yun+Lai+Viewpoint/@19.369037,98.395388,17z/" target="_blank">Yun Lai Viewpoint ↗</a></div><div class="place-desc">Sunrise over misty valley. Tea from hilltop café. 20 THB. Before 6 AM.</div></td><td class="col-tag"><span class="tag tag-nature">Nature</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">10 AM</td><td class="col-activity"><div class="place-name">④ <a href="https://www.google.com/maps/place/Pam+Bok+Waterfall/@19.320536,98.4051992,17z/" target="_blank">Pam Bok Waterfall ↗</a></div><div class="place-desc">Secluded, shaded by cliffs. Often empty. Cool dip. 100–200 THB.</div></td><td class="col-tag"><span class="tag tag-nature">Nature</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">1 PM</td><td class="col-activity"><div class="place-name">⑤ <a href="https://www.google.com/maps/place/Tha+Pai+Hot+Spring/@19.3080849,98.47317,17z/" target="_blank">Tha Pai Hot Springs ↗</a></div><div class="place-desc">Forest hot springs, varying temps. 300 THB, cash only. Bring eggs for 80°C pools.</div></td><td class="col-tag"><span class="tag tag-nature">Nature</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">Sunset</td><td class="col-activity"><div class="place-name">Wat Phra That Mae Yen</div><div class="place-desc">White Buddha on hilltop. Quiet at sunset. Panoramic valley views. Contemplative spot.</div></td><td class="col-tag"><span class="tag tag-temple">Temple</span></td></tr>
+
+        <tr class="day-sep"><td colspan="4"><span class="day-label">Day 9 — Slow Day, Valley & Culture</span> <a class="map-route" href="https://www.google.com/maps/dir/Kho+Ku+So+Bamboo+Bridge,+Pai/Santichon+Village,+Pai/@19.35,98.4,13z" target="_blank">🗺️ Day 9 route</a></td></tr>
+        <tr><td class="col-day">9</td><td class="col-time">9 AM</td><td class="col-activity"><div class="place-name">⑥ <a href="https://www.google.com/maps/place/Kho+Ku+So+Bamboo+Bridge/@19.322508,98.3931658,17z/" target="_blank">Kho Ku So Bamboo Bridge ↗</a></div><div class="place-desc">800m through rice fields → forest temple. 30 THB. Monks, buffalo, dogs.</div></td><td class="col-tag"><span class="tag tag-nature">Nature</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">12 PM</td><td class="col-activity"><div class="place-name">⑦ <a href="https://www.google.com/maps/place/Santichon+Village/@19.3707471,98.4027162,17z/" target="_blank">Ban Santichon Chinese Village ↗</a></div><div class="place-desc">Kuomintang settlement. Yunnan houses, Chinese food, tea tasting, valley views.</div></td><td class="col-tag"><span class="tag tag-food">Food</span></td></tr>
+        <tr><td class="col-day"></td><td class="col-time">PM</td><td class="col-activity"><div class="place-name">Rice-field café hopping</div><div class="place-desc">Jaey Café or any nameless spot in the paddies. Hammocks, coffee, buffalo. Do nothing.</div></td><td class="col-tag"><span class="tag tag-food">Food</span></td></tr>
+      </tbody>
+    </table>
+    <div id="map-pai" class="day-map"></div>
+  </div>
+</div>
+
+<!-- RETURN -->
+<div class="transport-connector"><strong>🚐 Minivan</strong>&nbsp;— Pai → Chiang Mai (3 hrs). Morning or afternoon.</div>
+<div class="city-block">
+  <div class="city-header"><div class="city-dot" style="background:var(--city-cm)"></div><h3>Chiang Mai → Home</h3></div>
+  <div class="city-sub">Day 10 · Buffer day before flight</div>
+  <div class="itin-table-wrap">
+    <table class="itin-table">
+      <thead><tr><th>Day</th><th>Time</th><th>What to Do</th><th></th></tr></thead>
+      <tbody>
+        <tr><td class="col-day">10</td><td class="col-time">AM</td><td class="col-activity"><div class="place-name"><a href="https://www.google.com/maps/place/Wat+Umong+Suan+Putthatham/@18.7827263,98.9521099,17z/" target="_blank">Wat Umong ↗</a> or Warorot Market</div><div class="place-desc">One last quiet sit, or slow market breakfast. Fly home from CNX.</div></td><td class="col-tag"><span class="tag tag-temple">Temple</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- NOTES -->
+<div class="notes-section">
+  <h2 class="section-head">Practical Notes</h2>
+  <div class="notes-grid">
+    <div class="note-card"><h4>🛵 Scooter Safety</h4><p>All routes are flat — CM grid, San Kamphaeng road, Hwy 106, Pai valley. Mountain roads (Doi Suthep, Pai route) handled by bus/songthaew.</p></div>
+    <div class="note-card"><h4>📄 IDP Required</h4><p>Get International Driving Permit with motorcycle endorsement before leaving SG. Police checkpoints common. Photo existing scooter damage.</p></div>
+    <div class="note-card"><h4>🌧️ May Weather</h4><p>Start of rainy season — afternoon thunderstorms. Ride mornings, indoor activities afternoons. Fewer tourists, greener landscapes.</p></div>
+    <div class="note-card"><h4>💰 Budget (~SGD 700)</h4><p>Stay: 500–1,000 THB/night. Food: 300–500/day. Scooter: 200–300/day. Buses: 150–400/leg. Sky Temple taxi: ~2,000 THB RT.</p></div>
+    <div class="note-card"><h4>🚌 Key Bus Info</h4><p>GreenBus for Lampang (Arcade 3). Aya/Prempracha for Pai (Arcade 2) — book 1–2 days ahead. Blue songthaew to Lamphun from Iron Bridge, 20 THB.</p></div>
+    <div class="note-card"><h4>🍜 Must-Eat</h4><p>Khao soi everywhere. Sai ua at Chang Phuak. Longan noodles Lamphun. Aroy One Baht Lampang. Pai Walking Street. Ban Santichon Chinese food.</p></div>
+  </div>
+</div>
+
+</div>
+<div class="footer">Northern Thailand Solo Loop · May 2026 · Nature · Monasteries · Food · Art</div>
+
+<script>
+function initMap(containerId, stops, color) {
+  var map = L.map(containerId, { scrollWheelZoom: false });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 18
+  }).addTo(map);
+
+  var bounds = [];
+  stops.forEach(function(stop) {
+    var icon = L.divIcon({
+      className: '',
+      html: '<div class="map-marker" style="background:' + color + '">' + stop.label + '</div>',
+      iconSize: [28, 28],
+      iconAnchor: [14, 14],
+      popupAnchor: [0, -16]
+    });
+    var marker = L.marker([stop.lat, stop.lng], { icon: icon }).addTo(map);
+    marker.bindPopup('<strong>' + stop.label + '. ' + stop.name + '</strong>' + (stop.time ? '<br><small>' + stop.time + '</small>' : ''));
+    bounds.push([stop.lat, stop.lng]);
+  });
+
+  L.polyline(bounds, { color: color, weight: 2, opacity: 0.5, dashArray: '6,8' }).addTo(map);
+  map.fitBounds(bounds, { padding: [30, 30] });
+}
+
+// Chiang Mai — Days 1–3
+initMap('map-chiangmai', [
+  {lat:18.7827, lng:98.9521, label:'①', name:'Wat Umong', time:'Day 1 · 3 PM'},
+  {lat:18.7898, lng:99.0010, label:'②', name:'Warorot Market', time:'Day 1 · 6 PM'},
+  {lat:18.7645, lng:99.0821, label:'③', name:'Bor Sang Umbrella Village', time:'Day 2 · 9:30 AM'},
+  {lat:18.7572, lng:99.0937, label:'④', name:'MAIIAM Art Museum', time:'Day 2 · 11 AM'},
+  {lat:18.8145, lng:99.2294, label:'⑤', name:'San Kamphaeng Hot Springs', time:'Day 2 · 1:30 PM'},
+  {lat:18.7746, lng:98.9488, label:'⑥', name:'Wat Ram Poeng', time:'Day 3 · 4 PM'},
+  {lat:18.7959, lng:98.9858, label:'⑦', name:'Chang Phuak Gate Market', time:'Day 3 · 6 PM'}
+], '#c4813d');
+
+// Lamphun — Day 4
+initMap('map-lamphun', [
+  {lat:18.5771, lng:99.0085, label:'①', name:'Wat Phra That Hariphunchai', time:'8:30 AM'},
+  {lat:18.5750, lng:99.0060, label:'②', name:'Lamphun Old Town', time:'11 AM'},
+  {lat:18.6038, lng:98.9721, label:'③', name:'The Terracotta Garden', time:'12 PM'}
+], '#6b8a5a');
+
+// Lampang — Days 5–6
+initMap('map-lampang', [
+  {lat:18.2960, lng:99.5066, label:'①', name:'Wang River / Old Town', time:'Day 5 · Dawn'},
+  {lat:18.2310, lng:99.5080, label:'②', name:'Dhanabadee Ceramic Museum', time:'Day 5 · 11 AM'},
+  {lat:18.7413, lng:99.5436, label:'③', name:'Wat Chalermprakiat (Sky Temple)', time:'Day 6 · 7:30 AM'}
+], '#8a6b5a');
+
+// Pai — Days 7–9
+initMap('map-pai', [
+  {lat:19.3061, lng:98.4525, label:'①', name:'Pai Canyon', time:'Day 7 · 4:30 PM'},
+  {lat:19.3596, lng:98.4424, label:'②', name:'Pai Walking Street', time:'Day 7 · 7 PM'},
+  {lat:19.3690, lng:98.3954, label:'③', name:'Yun Lai Viewpoint', time:'Day 8 · 5:45 AM'},
+  {lat:19.3205, lng:98.4052, label:'④', name:'Pam Bok Waterfall', time:'Day 8 · 10 AM'},
+  {lat:19.3081, lng:98.4732, label:'⑤', name:'Tha Pai Hot Springs', time:'Day 8 · 1 PM'},
+  {lat:19.3225, lng:98.3932, label:'⑥', name:'Bamboo Bridge', time:'Day 9 · 9 AM'},
+  {lat:19.3707, lng:98.4027, label:'⑦', name:'Ban Santichon', time:'Day 9 · 12 PM'}
+], '#5a7a8a');
+</script>
+
+</body>
+</html>
